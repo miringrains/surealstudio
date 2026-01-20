@@ -125,11 +125,15 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
     <div className="fixed inset-0 bg-black overflow-hidden">
       {/* Ambient Glow Layer - fades out when video ends */}
       <motion.div 
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none overflow-hidden"
         animate={{ 
-          opacity: hasEnded ? 0 : isActive ? 0.5 : 0.2,
+          opacity: hasEnded ? 0 : isActive ? 0.6 : 0.3,
         }}
         transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          filter: 'blur(80px) saturate(1.4)',
+          transform: 'scale(1.3)',
+        }}
       >
         <MuxPlayer
           ref={ambientPlayerRef}
@@ -138,8 +142,13 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
           muted
           autoPlay
           loop
-          className="w-full h-full object-cover ambient-glow"
-          style={{ position: 'absolute', inset: 0 }}
+          style={{ 
+            position: 'absolute', 
+            inset: '-20%',
+            width: '140%',
+            height: '140%',
+            aspectRatio: 'auto',
+          }}
         />
       </motion.div>
 
