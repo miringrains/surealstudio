@@ -7,6 +7,7 @@ import type MuxPlayerElement from '@mux/mux-player'
 import { RotateCcw } from 'lucide-react'
 import { FloatingReactions } from './FloatingReactions'
 import { SurealLogo } from '@/components/SurealLogo'
+import { ShinyText } from '@/components/effects/ShinyText'
 import type { Premiere } from '@/lib/types'
 
 interface CinemaTheaterProps {
@@ -24,7 +25,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
   const [showIntro, setShowIntro] = useState(true)
   const [showUI, setShowUI] = useState(true)
 
-  // Thumbnail for static ambient fallback
+  // Thumbnail for ambient
   const thumbnailUrl = `https://image.mux.com/${premiere.mux_playback_id}/thumbnail.jpg?time=10&width=1920`
 
   // Sync ambient with main
@@ -111,8 +112,8 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
   return (
     <div className="fixed inset-0 bg-[#030303] overflow-hidden">
       
-      {/* ============ AMBIENT GLOW LAYER ============ */}
-      {/* Static thumbnail blur as base layer */}
+      {/* ============ AMBIENT GLOW ============ */}
+      {/* Thumbnail base */}
       <motion.div
         className="absolute inset-0 z-0"
         animate={{ opacity: hasEnded ? 0 : 0.5 }}
@@ -129,7 +130,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
         />
       </motion.div>
 
-      {/* Dynamic video glow layer - wrapped for styling */}
+      {/* Dynamic video glow */}
       <motion.div
         className="absolute inset-0 z-[1] pointer-events-none overflow-hidden"
         animate={{ opacity: hasEnded ? 0 : isActive ? 0.6 : 0.3 }}
@@ -155,18 +156,18 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
         </div>
       </motion.div>
 
-      {/* ============ VIGNETTE ============ */}
+      {/* Vignette */}
       <div 
-        className="absolute inset-0 z-[2] pointer-events-none"
+        className="absolute inset-0 z-[2] pointer-events-none transition-all duration-1000"
         style={{
           background: hasEnded
             ? 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.9) 100%)'
-            : 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.7) 100%)'
+            : 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.6) 100%)'
         }}
       />
 
       {/* ============ MAIN VIDEO ============ */}
-      <div className="relative z-[3] flex items-center justify-center min-h-[100dvh] px-4 py-8 md:px-12 md:py-12">
+      <div className="relative z-[3] flex items-center justify-center min-h-[100dvh] px-4 py-6 md:px-8 md:py-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ 
@@ -174,15 +175,17 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
             scale: hasEnded ? 0.94 : 1,
           }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-6xl"
+          className="w-full flex flex-col items-center"
+          style={{ maxWidth: '90vh' }} // Constrain width for vertical videos
         >
-          {/* Video container with subtle shadow */}
+          {/* Video container */}
           <div 
-            className="relative bg-black"
+            className="relative w-full bg-black overflow-hidden"
             style={{
               boxShadow: isActive 
-                ? '0 0 0 1px rgba(255,255,255,0.05), 0 30px 60px -20px rgba(0,0,0,0.8)'
-                : '0 0 0 1px rgba(255,255,255,0.03)'
+                ? '0 0 0 1px rgba(255,255,255,0.04), 0 40px 80px -20px rgba(0,0,0,0.8)'
+                : '0 0 0 1px rgba(255,255,255,0.02)',
+              transition: 'box-shadow 0.5s ease',
             }}
           >
             <MuxPlayer
@@ -195,33 +198,33 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
               autoPlay
               preload="auto"
               metadata={{ video_title: premiere.title }}
-              className="main-mux-player w-full"
+              className="main-mux-player"
               onPlay={handlePlay}
               onPause={handlePause}
               onEnded={handleEnded}
             />
           </div>
 
-          {/* Title bar */}
+          {/* Title */}
           <motion.div
             animate={{ opacity: showUI && !showIntro && !hasEnded ? 1 : 0 }}
             transition={{ duration: 0.3 }}
-            className="mt-5 flex items-center justify-between"
+            className="w-full mt-4 flex items-center justify-between px-1"
           >
             <div>
-              <h1 className="text-base md:text-lg font-normal text-white/80 tracking-tight">
+              <h1 className="text-sm md:text-base font-normal text-white/70">
                 {premiere.title}
               </h1>
               {premiere.description && (
-                <p className="text-sm text-white/30 mt-0.5">{premiere.description}</p>
+                <p className="text-xs text-white/30 mt-0.5">{premiere.description}</p>
               )}
             </div>
-            <SurealLogo size="sm" animate={false} className="opacity-30" />
+            <SurealLogo size="sm" animate={false} className="opacity-25" />
           </motion.div>
         </motion.div>
       </div>
 
-      {/* ============ INTRO OVERLAY ============ */}
+      {/* ============ INTRO ============ */}
       <AnimatePresence>
         {showIntro && (
           <motion.div
@@ -234,26 +237,26 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -20, scale: 1.05 }}
               transition={{ duration: 0.8 }}
               className="flex flex-col items-center"
             >
               <SurealLogo size="lg" animate={false} />
               
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                transition={{ delay: 0.6 }}
-                className="mt-6 text-[10px] uppercase tracking-[0.2em] text-white/40"
-              >
-                Presents
-              </motion.span>
+              <div className="mt-6">
+                <ShinyText 
+                  delay={0.6}
+                  className="text-[10px] uppercase tracking-[0.25em] text-white/35"
+                >
+                  Presents
+                </ShinyText>
+              </div>
 
               <motion.span
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.25 }}
-                transition={{ delay: 1.5 }}
-                className="mt-12 text-[11px] text-white/25"
+                animate={{ opacity: 0.2 }}
+                transition={{ delay: 2 }}
+                className="mt-16 text-[11px] text-white/20"
               >
                 Tap to begin
               </motion.span>
@@ -262,7 +265,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
         )}
       </AnimatePresence>
 
-      {/* ============ OUTRO OVERLAY ============ */}
+      {/* ============ OUTRO ============ */}
       <AnimatePresence>
         {hasEnded && (
           <motion.div
@@ -277,33 +280,34 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
               transition={{ duration: 1, delay: 0.8 }}
               className="flex flex-col items-center"
             >
-              <SurealLogo size="md" animate={false} className="opacity-50" />
+              <SurealLogo size="md" animate={false} className="opacity-40" />
               
-              <span className="mt-6 text-sm text-white/40 tracking-tight">
+              <span className="mt-6 text-sm text-white/35">
                 {premiere.title}
               </span>
               
-              <span className="mt-1 text-[10px] text-white/20 uppercase tracking-[0.15em]">
+              <span className="mt-1.5 text-[9px] text-white/15 uppercase tracking-[0.2em]">
                 A Sureal Studio Production
               </span>
 
-              {/* Replay button */}
               <motion.button
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5 }}
                 onClick={handleReplay}
-                className="mt-10 flex items-center gap-2.5 px-5 py-2.5 text-white/50 hover:text-white/80 border border-white/10 hover:border-white/25 transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="mt-12 flex items-center gap-2 px-5 py-2.5 text-white/40 hover:text-white/70 border border-white/10 hover:border-white/20 transition-all duration-300"
               >
-                <RotateCcw size={13} strokeWidth={1.5} />
-                <span className="text-[11px] tracking-wide">Watch again</span>
+                <RotateCcw size={12} strokeWidth={1.5} />
+                <span className="text-[10px] tracking-[0.1em]">Watch again</span>
               </motion.button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ============ REACTIONS ============ */}
+      {/* Reactions */}
       <FloatingReactions premiereId={premiere.id} enabled={videoState === 'playing'} />
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { FlipCounter } from '@/components/effects/FlipCounter'
 
 interface CountdownTimerProps {
   targetDate: Date
@@ -45,7 +46,7 @@ export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) 
       <motion.span 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="label"
+        className="text-[10px] uppercase tracking-[0.2em] text-white/40"
       >
         Live now
       </motion.span>
@@ -53,26 +54,29 @@ export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) 
   }
 
   const units = [
-    { value: timeLeft.days, label: 'd' },
-    { value: timeLeft.hours, label: 'h' },
-    { value: timeLeft.minutes, label: 'm' },
-    { value: timeLeft.seconds, label: 's' },
-  ].filter((unit, i) => unit.value > 0 || i >= 2) // Always show at least minutes and seconds
+    { value: timeLeft.days, label: 'Days', show: timeLeft.days > 0 },
+    { value: timeLeft.hours, label: 'Hours', show: timeLeft.days > 0 || timeLeft.hours > 0 },
+    { value: timeLeft.minutes, label: 'Min', show: true },
+    { value: timeLeft.seconds, label: 'Sec', show: true },
+  ].filter(u => u.show)
 
   return (
-    <div className="flex items-baseline gap-1">
+    <div className="flex items-center gap-6 md:gap-8">
       {units.map((unit, i) => (
-        <div key={unit.label} className="flex items-baseline">
-          <motion.span
-            key={`${unit.label}-${unit.value}`}
-            initial={{ opacity: 0.5, y: -2 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-light tabular-nums text-white/90"
-          >
-            {String(unit.value).padStart(2, '0')}
-          </motion.span>
-          <span className="text-white/30 text-sm ml-0.5 mr-3">{unit.label}</span>
-        </div>
+        <motion.div 
+          key={unit.label}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 + i * 0.1 }}
+          className="flex flex-col items-center"
+        >
+          <div className="text-3xl md:text-5xl font-light text-white/90 tracking-tight">
+            <FlipCounter value={unit.value} />
+          </div>
+          <span className="mt-2 text-[9px] uppercase tracking-[0.15em] text-white/30">
+            {unit.label}
+          </span>
+        </motion.div>
       ))}
     </div>
   )
