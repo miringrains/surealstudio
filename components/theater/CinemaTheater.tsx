@@ -129,34 +129,30 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
         />
       </motion.div>
 
-      {/* Dynamic video glow layer */}
+      {/* Dynamic video glow layer - wrapped for styling */}
       <motion.div
-        className="absolute inset-0 z-[1] pointer-events-none"
+        className="absolute inset-0 z-[1] pointer-events-none overflow-hidden"
         animate={{ opacity: hasEnded ? 0 : isActive ? 0.6 : 0.3 }}
         transition={{ duration: 1.5 }}
-        style={{
-          filter: 'blur(100px) saturate(1.5)',
-          transform: 'scale(1.4)',
-        }}
       >
-        <MuxPlayer
-          ref={ambientPlayerRef}
-          playbackId={premiere.mux_playback_id} 
-          tokens={tokens}
-          muted
-          autoPlay
-          loop
-          preload="auto"
+        <div 
+          className="absolute inset-[-30%] w-[160%] h-[160%]"
           style={{
-            position: 'absolute',
-            top: '-20%',
-            left: '-20%',
-            width: '140%',
-            height: '140%',
-            '--controls': 'none',
-            '--media-object-fit': 'cover',
-          } as React.CSSProperties}
-        />
+            filter: 'blur(100px) saturate(1.5)',
+            transform: 'scale(1.2)',
+          }}
+        >
+          <MuxPlayer
+            ref={ambientPlayerRef}
+            playbackId={premiere.mux_playback_id} 
+            tokens={tokens}
+            muted
+            autoPlay
+            loop
+            preload="auto"
+            className="ambient-mux-player w-full h-full"
+          />
+        </div>
       </motion.div>
 
       {/* ============ VIGNETTE ============ */}
@@ -199,10 +195,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
               autoPlay
               preload="auto"
               metadata={{ video_title: premiere.title }}
-              style={{
-                width: '100%',
-                '--media-object-fit': 'contain',
-              } as React.CSSProperties}
+              className="main-mux-player w-full"
               onPlay={handlePlay}
               onPause={handlePause}
               onEnded={handleEnded}

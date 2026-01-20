@@ -54,21 +54,38 @@ body {
 
 /* ========== MUX PLAYER STYLES ========== */
 
-/* Default player - show controls, nice styling */
-mux-player {
+/* Main player styling */
+.main-mux-player {
+  --controls: auto;
   --media-object-fit: contain;
   --media-object-position: center;
-  width: 100%;
   display: block;
 }
 
-mux-player::part(bottom) {
+.main-mux-player::part(bottom) {
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
   padding: 12px 16px;
 }
 
-mux-player::part(top) {
+.main-mux-player::part(top) {
   background: transparent;
+}
+
+/* Ambient player - hide all UI */
+.ambient-mux-player {
+  --controls: none;
+  --media-object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.ambient-mux-player::part(top),
+.ambient-mux-player::part(center),
+.ambient-mux-player::part(bottom),
+.ambient-mux-player::part(gesture-layer) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 /* ========== FORM INPUTS ========== */
