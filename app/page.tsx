@@ -116,7 +116,7 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-xs uppercase tracking-[0.2em] text-white/60"
+                  className="text-xs uppercase tracking-[0.2em] text-white/70"
                 >
                   Next Premiere
                 </motion.span>
@@ -173,7 +173,7 @@ export default function Home() {
               className="flex flex-col items-center gap-3 text-center"
             >
               <h2 className="text-2xl font-normal text-white">No upcoming premieres</h2>
-              <p className="text-white/60 text-base">Check back soon</p>
+              <p className="text-white/70 text-base">Check back soon</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -184,7 +184,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-6 text-white/50 text-sm"
+        className="absolute bottom-6 text-white/60 text-sm"
       >
         Sureal Studio © {new Date().getFullYear()}
       </motion.footer>

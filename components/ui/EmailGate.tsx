@@ -101,7 +101,7 @@ export function EmailGate({
 
                 <div className="flex flex-col gap-8">
                   <div className="flex flex-col gap-3">
-                    <span className="text-xs uppercase tracking-[0.2em] text-white/60">Enter Premiere</span>
+                    <span className="text-xs uppercase tracking-[0.2em] text-white/70">Enter Premiere</span>
                     <Dialog.Title className="text-2xl font-normal text-white">
                       {premiereTitle}
                     </Dialog.Title>
@@ -144,7 +144,7 @@ export function EmailGate({
                     </Button>
                   </form>
 
-                  <p className="text-white/50 text-sm text-center">
+                  <p className="text-white/60 text-sm text-center">
                     Your email is only used for attendance
                   </p>
                 </div>

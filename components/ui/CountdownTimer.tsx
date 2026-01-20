@@ -73,7 +73,7 @@ export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) 
           <div className="text-4xl md:text-6xl font-light text-white tracking-tight">
             <FlipCounter value={unit.value} />
           </div>
-          <span className="mt-3 text-xs uppercase tracking-[0.15em] text-white/60">
+          <span className="mt-3 text-xs uppercase tracking-[0.15em] text-white/70">
             {unit.label}
           </span>
         </motion.div>
