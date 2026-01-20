@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import MuxPlayer from '@mux/mux-player-react'
 import type MuxPlayerElement from '@mux/mux-player'
+import { RotateCcw } from 'lucide-react'
 import { FloatingReactions } from './FloatingReactions'
 import { SurealLogo } from '@/components/SurealLogo'
 import type { Premiere } from '@/lib/types'
@@ -24,11 +25,14 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
   const [showControls, setShowControls] = useState(true)
 
   // Sync ambient player with main player
-  const syncAmbientPlayer = useCallback((action: 'play' | 'pause') => {
+  const syncAmbientPlayer = useCallback((action: 'play' | 'pause', currentTime?: number) => {
     const ambientPlayer = ambientPlayerRef.current
     if (!ambientPlayer) return
     
     try {
+      if (typeof currentTime === 'number') {
+        ambientPlayer.currentTime = currentTime
+      }
       if (action === 'play') {
         ambientPlayer.play()
       } else {
@@ -43,7 +47,10 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
   const handlePlay = useCallback(() => {
     setVideoState('playing')
     setShowIntro(false)
-    syncAmbientPlayer('play')
+    const mainPlayer = mainPlayerRef.current
+    if (mainPlayer) {
+      syncAmbientPlayer('play', mainPlayer.currentTime)
+    }
   }, [syncAmbientPlayer])
 
   const handlePause = useCallback(() => {
@@ -55,6 +62,24 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
     setVideoState('ended')
     syncAmbientPlayer('pause')
   }, [syncAmbientPlayer])
+
+  // Sync time periodically
+  useEffect(() => {
+    if (videoState !== 'playing') return
+
+    const interval = setInterval(() => {
+      const mainPlayer = mainPlayerRef.current
+      const ambientPlayer = ambientPlayerRef.current
+      if (mainPlayer && ambientPlayer) {
+        const diff = Math.abs(mainPlayer.currentTime - ambientPlayer.currentTime)
+        if (diff > 0.5) {
+          ambientPlayer.currentTime = mainPlayer.currentTime
+        }
+      }
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [videoState])
 
   // Auto-hide controls when playing
   useEffect(() => {
@@ -80,6 +105,16 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
     }
   }, [videoState])
 
+  // Handle replay
+  const handleReplay = useCallback(() => {
+    const mainPlayer = mainPlayerRef.current
+    if (mainPlayer) {
+      mainPlayer.currentTime = 0
+      mainPlayer.play()
+      setVideoState('playing')
+    }
+  }, [])
+
   const tokens = playbackToken ? { playback: playbackToken } : undefined
   
   // Derived states for visual effects
@@ -92,7 +127,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
       <motion.div 
         className="absolute inset-0 pointer-events-none"
         animate={{ 
-          opacity: hasEnded ? 0 : isActive ? 0.45 : 0.2,
+          opacity: hasEnded ? 0 : isActive ? 0.5 : 0.2,
         }}
         transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
       >
@@ -101,6 +136,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
           playbackId={premiere.mux_playback_id}
           tokens={tokens}
           muted
+          autoPlay
           loop
           className="w-full h-full object-cover ambient-glow"
           style={{ position: 'absolute', inset: 0 }}
@@ -214,7 +250,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
         )}
       </AnimatePresence>
 
-      {/* Cinematic Outro Overlay */}
+      {/* Cinematic Outro Overlay with Replay */}
       <AnimatePresence>
         {hasEnded && (
           <motion.div
@@ -238,6 +274,18 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
                   A Sureal Studio Production
                 </span>
               </div>
+              
+              {/* Replay Button */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 }}
+                onClick={handleReplay}
+                className="mt-4 flex items-center gap-3 px-6 py-3 border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all duration-300 group"
+              >
+                <RotateCcw size={18} className="group-hover:rotate-[-360deg] transition-transform duration-500" />
+                <span className="text-sm tracking-wider uppercase">Watch Again</span>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}

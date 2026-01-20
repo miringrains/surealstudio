@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 
 interface Reaction {
   id: string
@@ -21,6 +22,7 @@ interface FloatingReactionsProps {
 export function FloatingReactions({ premiereId, enabled = true }: FloatingReactionsProps) {
   const [reactions, setReactions] = useState<Reaction[]>([])
   const [isHovering, setIsHovering] = useState(false)
+  const channelRef = useRef<RealtimeChannel | null>(null)
 
   // Remove expired reactions
   useEffect(() => {
@@ -39,7 +41,9 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
     const supabase = createClient()
     
     const channel = supabase
-      .channel(`reactions:${premiereId}`)
+      .channel(`reactions:${premiereId}`, {
+        config: { broadcast: { self: true } }
+      })
       .on('broadcast', { event: 'reaction' }, ({ payload }) => {
         const newReaction: Reaction = {
           id: `${Date.now()}-${Math.random()}`,
@@ -51,16 +55,19 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
       })
       .subscribe()
 
+    channelRef.current = channel
+
     return () => {
       supabase.removeChannel(channel)
+      channelRef.current = null
     }
   }, [premiereId, enabled])
 
-  const sendReaction = useCallback(async (emoji: string) => {
-    const supabase = createClient()
+  const sendReaction = useCallback((emoji: string) => {
+    if (!channelRef.current) return
     
-    // Broadcast to all viewers
-    await supabase.channel(`reactions:${premiereId}`).send({
+    // Broadcast to all viewers (including self due to config)
+    channelRef.current.send({
       type: 'broadcast',
       event: 'reaction',
       payload: {
@@ -68,16 +75,7 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
         x: Math.random() * 80 + 10,
       },
     })
-
-    // Also add locally for immediate feedback
-    const newReaction: Reaction = {
-      id: `${Date.now()}-${Math.random()}`,
-      emoji,
-      x: Math.random() * 80 + 10,
-      createdAt: Date.now(),
-    }
-    setReactions((prev) => [...prev, newReaction])
-  }, [premiereId])
+  }, [])
 
   if (!enabled) return null
 
@@ -92,7 +90,6 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
               initial={{ 
                 opacity: 1, 
                 y: '100vh',
-                x: `${reaction.x}vw`,
                 scale: 1,
               }}
               animate={{ 
