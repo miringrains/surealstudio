@@ -78,8 +78,8 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
 
   return (
     <>
-      {/* Floating emojis */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[5]">
+      {/* Floating emojis - behind video (z-[1]) */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[1]">
         <AnimatePresence>
           {reactions.map((reaction) => (
             <motion.div
@@ -91,20 +91,20 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
                 x: `${reaction.x}vw`,
               }}
               animate={{ 
-                opacity: [1, 1, 0],
-                y: '-5vh',
-                scale: [0.8, 1.1, 0.9],
+                opacity: [1, 1, 0.8, 0],
+                y: '-20vh',
+                scale: [0.8, 1.2, 1, 0.8],
               }}
               transition={{ 
-                duration: 4.5,
+                duration: 5,
                 ease: [0.16, 1, 0.3, 1],
-                opacity: { times: [0, 0.7, 1] },
-                scale: { times: [0, 0.3, 1] },
+                opacity: { times: [0, 0.5, 0.85, 1] },
+                scale: { times: [0, 0.2, 0.6, 1] },
               }}
-              className="absolute text-2xl md:text-3xl"
+              className="absolute text-3xl md:text-4xl"
               style={{ 
                 left: 0,
-                textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                textShadow: '0 4px 20px rgba(0,0,0,0.5)',
               }}
             >
               {reaction.emoji}

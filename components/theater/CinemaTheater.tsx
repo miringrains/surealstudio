@@ -205,21 +205,16 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
             />
           </div>
 
-          {/* Title */}
+          {/* Title & Logo */}
           <motion.div
             animate={{ opacity: showUI && !showIntro && !hasEnded ? 1 : 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full mt-5 flex items-center justify-between px-1"
+            className="w-full mt-4 flex items-center justify-between"
           >
-            <div>
-              <h1 className="text-base md:text-lg font-normal text-white">
-                {premiere.title}
-              </h1>
-              {premiere.description && (
-                <p className="text-sm text-white/70 mt-1">{premiere.description}</p>
-              )}
-            </div>
-            <SurealLogo size="sm" animate={false} className="opacity-50" />
+            <h1 className="text-sm md:text-base font-normal text-white/80">
+              {premiere.title}
+            </h1>
+            <SurealLogo size="sm" animate={false} className="opacity-40" />
           </motion.div>
         </motion.div>
       </div>
