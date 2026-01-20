@@ -131,15 +131,14 @@ export function EmailGate({
                     <Button
                       type="submit"
                       disabled={isLoading || !email}
-                      size="lg"
-                      className="w-full flex items-center justify-center gap-3"
+                      className="w-full"
                     >
                       {isLoading ? (
-                        <Loader2 size={16} className="animate-spin" />
+                        <Loader2 size={18} className="animate-spin" />
                       ) : (
                         <>
-                          <span>Continue</span>
-                          <ArrowRight size={16} />
+                          Continue
+                          <ArrowRight size={18} strokeWidth={2} />
                         </>
                       )}
                     </Button>
