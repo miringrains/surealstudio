@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import * as Dialog from '@radix-ui/react-dialog'
 import { X, ArrowRight, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { cn } from '@/lib/utils'
+import { Button } from './Button'
 
 interface EmailGateProps {
   premiereId: string
@@ -32,14 +32,12 @@ export function EmailGate({
     setIsLoading(true)
 
     try {
-      // Validate email
       if (!email || !email.includes('@')) {
-        throw new Error('Please enter a valid email')
+        throw new Error('Enter a valid email')
       }
 
       const supabase = createClient()
       
-      // Check if already registered
       const { data: existing } = await supabase
         .from('attendees')
         .select('id')
@@ -48,7 +46,6 @@ export function EmailGate({
         .single()
 
       if (!existing) {
-        // Register new attendee
         const { error: insertError } = await supabase
           .from('attendees')
           .insert({
@@ -57,13 +54,11 @@ export function EmailGate({
           })
 
         if (insertError) {
-          throw new Error('Failed to register. Please try again.')
+          throw new Error('Failed to register')
         }
       }
 
-      // Store in localStorage for session persistence
       localStorage.setItem(`premiere_${premiereId}_email`, email.toLowerCase())
-      
       onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -83,87 +78,74 @@ export function EmailGate({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+                className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
               />
             </Dialog.Overlay>
             
             <Dialog.Content asChild>
               <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-8 glass rounded-none"
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm p-8"
               >
                 <Dialog.Close asChild>
                   <button
-                    className="absolute top-4 right-4 p-2 text-white-muted hover:text-white transition-colors"
+                    className="absolute top-0 right-0 p-2 text-white/30 hover:text-white/60 transition-colors"
                     aria-label="Close"
                   >
-                    <X size={20} />
+                    <X size={18} />
                   </button>
                 </Dialog.Close>
 
                 <div className="flex flex-col gap-8">
-                  {/* Header */}
-                  <div className="flex flex-col gap-2">
-                    <span className="text-label">Enter the Premiere</span>
-                    <Dialog.Title className="text-2xl font-light tracking-tight">
+                  <div className="flex flex-col gap-3">
+                    <span className="label">Enter Premiere</span>
+                    <Dialog.Title className="text-xl font-normal text-white/90">
                       {premiereTitle}
                     </Dialog.Title>
-                    <Dialog.Description className="text-white-muted text-sm">
-                      Enter your email to access the viewing experience.
-                    </Dialog.Description>
                   </div>
 
-                  {/* Form */}
                   <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        className="w-full"
+                        placeholder="Email"
                         disabled={isLoading}
                         autoFocus
                       />
                       {error && (
                         <motion.span
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="text-red-400 text-xs text-mono"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="text-red-400/80 text-xs"
                         >
                           {error}
                         </motion.span>
                       )}
                     </div>
 
-                    <button
+                    <Button
                       type="submit"
                       disabled={isLoading || !email}
-                      className={cn(
-                        'btn w-full',
-                        isLoading && 'opacity-50 cursor-wait'
-                      )}
+                      className="w-full flex items-center justify-center gap-2"
                     >
                       {isLoading ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin" />
-                          <span>Entering...</span>
-                        </>
+                        <Loader2 size={14} className="animate-spin" />
                       ) : (
                         <>
-                          <span>Enter Premiere</span>
-                          <ArrowRight size={16} />
+                          <span>Continue</span>
+                          <ArrowRight size={14} />
                         </>
                       )}
-                    </button>
+                    </Button>
                   </form>
 
-                  {/* Footer */}
-                  <p className="text-white-dim text-xs text-center">
-                    Your email will only be used to track attendance.
+                  <p className="text-white/20 text-xs text-center">
+                    Your email is only used for attendance
                   </p>
                 </div>
               </motion.div>

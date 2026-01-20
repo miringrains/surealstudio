@@ -3,9 +3,11 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import { ArrowRight } from 'lucide-react'
 import { SurealLogo } from '@/components/SurealLogo'
 import { CountdownTimer } from '@/components/ui/CountdownTimer'
 import { EmailGate } from '@/components/ui/EmailGate'
+import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 import type { Premiere } from '@/lib/types'
 
@@ -16,7 +18,6 @@ export default function Home() {
   const [showEmailGate, setShowEmailGate] = useState(false)
   const [hasAccess, setHasAccess] = useState(false)
 
-  // Fetch the next premiere
   useEffect(() => {
     async function fetchPremiere() {
       const supabase = createClient()
@@ -31,8 +32,6 @@ export default function Home() {
 
       if (!error && data) {
         setPremiere(data)
-        
-        // Check if user already has access
         const storedEmail = localStorage.getItem(`premiere_${data.id}_email`)
         if (storedEmail) {
           setHasAccess(true)
@@ -46,7 +45,6 @@ export default function Home() {
   }, [])
 
   const handleCountdownComplete = useCallback(() => {
-    // Premiere is live - can navigate if user has access
     if (hasAccess && premiere) {
       router.push(`/theater/${premiere.id}`)
     }
@@ -54,7 +52,6 @@ export default function Home() {
 
   const handleEnterClick = () => {
     if (hasAccess && premiere) {
-      // Go directly to theater (bypass countdown for demo)
       router.push(`/theater/${premiere.id}`)
     } else {
       setShowEmailGate(true)
@@ -64,40 +61,36 @@ export default function Home() {
   const handleGateSuccess = () => {
     setShowEmailGate(false)
     setHasAccess(true)
-    
-    // Go directly to theater after email entry (bypass countdown for demo)
     if (premiere) {
       router.push(`/theater/${premiere.id}`)
     }
   }
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden">
-      {/* Background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-b from-black via-black to-zinc-950/50" />
+    <main className="relative min-h-[100dvh] flex flex-col items-center justify-center p-8">
+      {/* Background */}
+      <div className="fixed inset-0 bg-black" />
       
-      {/* Subtle grid pattern */}
+      {/* Subtle gradient */}
       <div 
-        className="fixed inset-0 opacity-[0.02]"
+        className="fixed inset-0 opacity-30"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '100px 100px',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.03) 0%, transparent 50%)',
         }}
       />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-16 max-w-4xl w-full">
+      <div className="relative z-10 flex flex-col items-center gap-12 max-w-lg w-full">
         {/* Logo */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
           <SurealLogo size="lg" />
         </motion.div>
 
-        {/* Main content */}
+        {/* Main */}
         <AnimatePresence mode="wait">
           {isLoading ? (
             <motion.div
@@ -107,8 +100,7 @@ export default function Home() {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center gap-4"
             >
-              <div className="w-8 h-8 border border-white/20 border-t-white/80 rounded-full animate-spin" />
-              <span className="text-label">Loading</span>
+              <div className="w-5 h-5 border border-white/20 border-t-white/60 rounded-full animate-spin" />
             </motion.div>
           ) : premiere ? (
             <motion.div
@@ -116,15 +108,15 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center gap-12"
+              className="flex flex-col items-center gap-10"
             >
-              {/* Premiere info */}
-              <div className="flex flex-col items-center gap-4 text-center">
+              {/* Info */}
+              <div className="flex flex-col items-center gap-3 text-center">
                 <motion.span
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-label"
+                  className="label"
                 >
                   Next Premiere
                 </motion.span>
@@ -132,16 +124,16 @@ export default function Home() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-3xl md:text-5xl font-light tracking-tight"
+                  className="text-2xl md:text-3xl font-normal text-white/90"
                 >
                   {premiere.title}
                 </motion.h1>
                 {premiere.description && (
                   <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="text-white-muted max-w-md"
+                    className="text-white/40 text-sm"
                   >
                     {premiere.description}
                   </motion.p>
@@ -149,59 +141,39 @@ export default function Home() {
               </div>
 
               {/* Countdown */}
-              <CountdownTimer
-                targetDate={new Date(premiere.scheduled_at)}
-                onComplete={handleCountdownComplete}
-              />
-
-              {/* CTA Button */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
               >
-                <button
-                  onClick={handleEnterClick}
-                  className="btn group"
-                >
-                  <span>{hasAccess ? 'Enter Theater' : 'Get Access'}</span>
-                  <motion.span
-                    className="inline-block"
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    →
-                  </motion.span>
-                </button>
+                <CountdownTimer
+                  targetDate={new Date(premiere.scheduled_at)}
+                  onComplete={handleCountdownComplete}
+                />
               </motion.div>
 
-              {/* Access indicator */}
-              {hasAccess && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                  className="flex items-center gap-2 text-white-muted text-xs"
-                >
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span className="text-mono">Access Granted</span>
-                </motion.div>
-              )}
+              {/* CTA */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                <Button onClick={handleEnterClick} className="flex items-center gap-2">
+                  <span>{hasAccess ? 'Enter' : 'Get access'}</span>
+                  <ArrowRight size={14} />
+                </Button>
+              </motion.div>
             </motion.div>
           ) : (
             <motion.div
-              key="no-premiere"
+              key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center gap-6 text-center"
+              className="flex flex-col items-center gap-3 text-center"
             >
-              <h1 className="text-2xl md:text-4xl font-light tracking-tight">
-                No Upcoming Premieres
-              </h1>
-              <p className="text-white-muted max-w-md">
-                Check back soon for the next drop.
-              </p>
+              <h2 className="text-xl font-normal text-white/90">No upcoming premieres</h2>
+              <p className="text-white/40 text-sm">Check back soon</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -211,13 +183,13 @@ export default function Home() {
       <motion.footer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="fixed bottom-8 text-label"
+        transition={{ delay: 1.5 }}
+        className="absolute bottom-6 text-white/20 text-xs"
       >
         Sureal Studio © {new Date().getFullYear()}
       </motion.footer>
 
-      {/* Email Gate Modal */}
+      {/* Email Gate */}
       {premiere && (
         <EmailGate
           premiereId={premiere.id}

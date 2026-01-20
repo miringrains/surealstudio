@@ -1,142 +1,79 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { getTimeRemaining, formatTimeUnit } from '@/lib/utils'
-import type { TimeRemaining } from '@/lib/types'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 interface CountdownTimerProps {
   targetDate: Date
-  onComplete?: () => void
-}
-
-function CountdownDigit({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative overflow-hidden">
-        <AnimatePresence mode="popLayout">
-          <motion.span
-            key={value}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -20, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="countdown-digit block"
-          >
-            {value}
-          </motion.span>
-        </AnimatePresence>
-      </div>
-      <span className="text-label">{label}</span>
-    </div>
-  )
-}
-
-function Separator() {
-  return (
-    <motion.span
-      initial={{ opacity: 0 }}
-      animate={{ opacity: [0.2, 0.5, 0.2] }}
-      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-      className="countdown-separator self-start mt-2"
-    >
-      :
-    </motion.span>
-  )
+  onComplete: () => void
 }
 
 export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) {
-  const [timeRemaining, setTimeRemaining] = useState<TimeRemaining>({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    isLive: false,
-  })
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
+  const calculateTimeLeft = () => {
+    const difference = +targetDate - +new Date()
     
-    const updateCountdown = () => {
-      const remaining = getTimeRemaining(targetDate)
-      setTimeRemaining(remaining)
-      
-      if (remaining.isLive && onComplete) {
-        onComplete()
-      }
+    if (difference <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, completed: true }
     }
 
-    updateCountdown()
-    const interval = setInterval(updateCountdown, 1000)
+    return {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+      seconds: Math.floor((difference / 1000) % 60),
+      completed: false,
+    }
+  }
 
-    return () => clearInterval(interval)
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const newTime = calculateTimeLeft()
+      setTimeLeft(newTime)
+      if (newTime.completed) {
+        onComplete()
+        clearInterval(timer)
+      }
+    }, 1000)
+
+    return () => clearInterval(timer)
   }, [targetDate, onComplete])
 
-  if (!mounted) {
+  if (timeLeft.completed) {
     return (
-      <div className="flex items-center justify-center gap-4 md:gap-8">
-        <CountdownDigit value="00" label="Days" />
-        <Separator />
-        <CountdownDigit value="00" label="Hours" />
-        <Separator />
-        <CountdownDigit value="00" label="Mins" />
-        <Separator />
-        <CountdownDigit value="00" label="Secs" />
-      </div>
+      <motion.span 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="label"
+      >
+        Live now
+      </motion.span>
     )
   }
 
-  if (timeRemaining.isLive) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col items-center gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-3 h-3 rounded-full bg-red-500"
-          />
-          <span className="text-mono text-xl tracking-widest">LIVE NOW</span>
-        </div>
-      </motion.div>
-    )
-  }
+  const units = [
+    { value: timeLeft.days, label: 'd' },
+    { value: timeLeft.hours, label: 'h' },
+    { value: timeLeft.minutes, label: 'm' },
+    { value: timeLeft.seconds, label: 's' },
+  ].filter((unit, i) => unit.value > 0 || i >= 2) // Always show at least minutes and seconds
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-      className="flex items-center justify-center gap-4 md:gap-8"
-    >
-      {timeRemaining.days > 0 && (
-        <>
-          <CountdownDigit 
-            value={formatTimeUnit(timeRemaining.days)} 
-            label="Days" 
-          />
-          <Separator />
-        </>
-      )}
-      <CountdownDigit 
-        value={formatTimeUnit(timeRemaining.hours)} 
-        label="Hours" 
-      />
-      <Separator />
-      <CountdownDigit 
-        value={formatTimeUnit(timeRemaining.minutes)} 
-        label="Mins" 
-      />
-      <Separator />
-      <CountdownDigit 
-        value={formatTimeUnit(timeRemaining.seconds)} 
-        label="Secs" 
-      />
-    </motion.div>
+    <div className="flex items-baseline gap-1">
+      {units.map((unit, i) => (
+        <div key={unit.label} className="flex items-baseline">
+          <motion.span
+            key={`${unit.label}-${unit.value}`}
+            initial={{ opacity: 0.5, y: -2 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl font-light tabular-nums text-white/90"
+          >
+            {String(unit.value).padStart(2, '0')}
+          </motion.span>
+          <span className="text-white/30 text-sm ml-0.5 mr-3">{unit.label}</span>
+        </div>
+      ))}
+    </div>
   )
 }

@@ -12,7 +12,7 @@ interface Reaction {
   createdAt: number
 }
 
-const EMOJIS = ['🔥', '❤️', '🙌', '👀', '💯', '✨', '🎬', '🖤']
+const EMOJIS = ['🔥', '❤️', '✨', '👀', '💯']
 
 interface FloatingReactionsProps {
   premiereId: string
@@ -21,20 +21,17 @@ interface FloatingReactionsProps {
 
 export function FloatingReactions({ premiereId, enabled = true }: FloatingReactionsProps) {
   const [reactions, setReactions] = useState<Reaction[]>([])
-  const [isHovering, setIsHovering] = useState(false)
   const channelRef = useRef<RealtimeChannel | null>(null)
 
-  // Remove expired reactions
+  // Cleanup old reactions
   useEffect(() => {
     const interval = setInterval(() => {
-      const now = Date.now()
-      setReactions((prev) => prev.filter((r) => now - r.createdAt < 4000))
+      setReactions((prev) => prev.filter((r) => Date.now() - r.createdAt < 4000))
     }, 500)
-
     return () => clearInterval(interval)
   }, [])
 
-  // Subscribe to realtime reactions
+  // Realtime subscription
   useEffect(() => {
     if (!enabled) return
 
@@ -48,7 +45,7 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
         const newReaction: Reaction = {
           id: `${Date.now()}-${Math.random()}`,
           emoji: payload.emoji,
-          x: payload.x || Math.random() * 80 + 10,
+          x: payload.x || Math.random() * 70 + 15,
           createdAt: Date.now(),
         }
         setReactions((prev) => [...prev, newReaction])
@@ -66,13 +63,12 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
   const sendReaction = useCallback((emoji: string) => {
     if (!channelRef.current) return
     
-    // Broadcast to all viewers (including self due to config)
     channelRef.current.send({
       type: 'broadcast',
       event: 'reaction',
       payload: {
         emoji,
-        x: Math.random() * 80 + 10,
+        x: Math.random() * 70 + 15,
       },
     })
   }, [])
@@ -87,25 +83,12 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
           {reactions.map((reaction) => (
             <motion.div
               key={reaction.id}
-              initial={{ 
-                opacity: 1, 
-                y: '100vh',
-                scale: 1,
-              }}
-              animate={{ 
-                opacity: 0, 
-                y: '-10vh',
-                scale: 0.5,
-              }}
+              initial={{ opacity: 1, y: '100vh', scale: 1 }}
+              animate={{ opacity: 0, y: '-10vh', scale: 0.6 }}
               exit={{ opacity: 0 }}
-              transition={{ 
-                duration: 4,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="absolute text-4xl"
-              style={{
-                left: `${reaction.x}%`,
-              }}
+              transition={{ duration: 4, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute text-3xl"
+              style={{ left: `${reaction.x}%` }}
             >
               {reaction.emoji}
             </motion.div>
@@ -113,28 +96,20 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
         </AnimatePresence>
       </div>
 
-      {/* Reaction picker */}
-      <div
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
+      {/* Reaction bar */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: isHovering ? 1 : 0.4,
-            y: 0,
-          }}
-          transition={{ duration: 0.3 }}
-          className="glass px-4 py-3 flex items-center gap-2"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="glass px-3 py-2 flex items-center gap-1"
         >
           {EMOJIS.map((emoji) => (
             <motion.button
               key={emoji}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.85 }}
               onClick={() => sendReaction(emoji)}
-              className="text-2xl p-2 hover:bg-white/10 rounded transition-colors cursor-pointer"
+              className="text-xl p-2 hover:bg-white/5 rounded transition-colors"
             >
               {emoji}
             </motion.button>
