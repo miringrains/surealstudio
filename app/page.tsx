@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import { SurealLogo } from '@/components/SurealLogo'
 import { CountdownTimer } from '@/components/ui/CountdownTimer'
 import { EmailGate } from '@/components/ui/EmailGate'
+import { LobbyCount } from '@/components/ui/LobbyCount'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 import type { Premiere } from '@/lib/types'
@@ -111,12 +112,12 @@ export default function Home() {
               className="flex flex-col items-center gap-10"
             >
               {/* Info */}
-              <div className="flex flex-col items-center gap-3 text-center">
+              <div className="flex flex-col items-center gap-2 text-center">
                 <motion.span
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-xs uppercase tracking-[0.2em] text-white/70"
+                  className="text-[11px] uppercase tracking-[0.25em] text-white/50"
                 >
                   Next Premiere
                 </motion.span>
@@ -124,20 +125,10 @@ export default function Home() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-3xl md:text-4xl font-normal text-white"
+                  className="text-3xl md:text-5xl font-medium text-white"
                 >
                   {premiere.title}
                 </motion.h1>
-                {premiere.description && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="text-white/70 text-base"
-                  >
-                    {premiere.description}
-                  </motion.p>
-                )}
               </div>
 
               {/* Countdown */}
@@ -157,11 +148,14 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
+                className="flex flex-col items-center gap-6"
               >
                 <Button onClick={handleEnterClick}>
                   {hasAccess ? 'Enter Theater' : 'Get Access'}
                   <ArrowRight size={18} strokeWidth={2} />
                 </Button>
+                
+                <LobbyCount premiereId={premiere.id} />
               </motion.div>
             </motion.div>
           ) : (

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FlipCounter } from '@/components/effects/FlipCounter'
 
 interface CountdownTimerProps {
   targetDate: Date
@@ -46,34 +45,34 @@ export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) 
       <motion.span 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-sm uppercase tracking-[0.2em] text-white/70"
+        className="text-lg uppercase tracking-[0.3em] text-white"
       >
-        Live now
+        Live Now
       </motion.span>
     )
   }
 
   const units = [
-    { value: timeLeft.days, label: 'Days', show: timeLeft.days > 0 },
-    { value: timeLeft.hours, label: 'Hours', show: timeLeft.days > 0 || timeLeft.hours > 0 },
-    { value: timeLeft.minutes, label: 'Min', show: true },
-    { value: timeLeft.seconds, label: 'Sec', show: true },
-  ].filter(u => u.show)
+    { value: timeLeft.days, label: 'Days' },
+    { value: timeLeft.hours, label: 'Hours' },
+    { value: timeLeft.minutes, label: 'Min' },
+    { value: timeLeft.seconds, label: 'Sec' },
+  ]
 
   return (
-    <div className="flex items-center gap-8 md:gap-12">
+    <div className="flex items-center justify-center gap-6 md:gap-10">
       {units.map((unit, i) => (
         <motion.div 
           key={unit.label}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 + i * 0.1 }}
-          className="flex flex-col items-center"
+          transition={{ delay: 0.4 + i * 0.08 }}
+          className="flex flex-col items-center min-w-[60px] md:min-w-[80px]"
         >
-          <div className="text-4xl md:text-6xl font-light text-white tracking-tight">
-            <FlipCounter value={unit.value} />
+          <div className="text-3xl md:text-4xl font-semibold text-white tabular-nums">
+            {String(unit.value).padStart(2, '0')}
           </div>
-          <span className="mt-3 text-xs uppercase tracking-[0.15em] text-white/70">
+          <span className="mt-2 text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/60">
             {unit.label}
           </span>
         </motion.div>
