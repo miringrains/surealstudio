@@ -45,10 +45,15 @@ export function Button({
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "px-6 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white border border-white/15 hover:border-white/25 transition-all duration-300",
+        "font-medium text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition-all duration-300 cursor-pointer",
         disabled && "opacity-40 cursor-not-allowed",
         className
       )}
+      style={{
+        padding: '14px 28px',
+        fontSize: '15px',
+        borderRadius: '14px',
+      }}
     >
       {children}
     </motion.button>

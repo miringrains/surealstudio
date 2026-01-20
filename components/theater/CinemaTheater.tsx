@@ -176,8 +176,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
             scale: hasEnded ? 0.94 : 1,
           }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full flex flex-col items-center"
-          style={{ maxWidth: '90vh' }} // Constrain width for vertical videos
+          className="w-full max-w-6xl flex flex-col items-center"
         >
           {/* Video container */}
           <div 
