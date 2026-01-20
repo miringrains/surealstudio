@@ -8,6 +8,7 @@ import { RotateCcw } from 'lucide-react'
 import { FloatingReactions } from './FloatingReactions'
 import { SurealLogo } from '@/components/SurealLogo'
 import { ShinyText } from '@/components/effects/ShinyText'
+import { Button } from '@/components/ui/Button'
 import type { Premiere } from '@/lib/types'
 
 interface CinemaTheaterProps {
@@ -290,18 +291,20 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
                 A Sureal Studio Production
               </span>
 
-              <motion.button
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5 }}
-                onClick={handleReplay}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="mt-12 flex items-center gap-2 px-5 py-2.5 text-white/40 hover:text-white/70 border border-white/10 hover:border-white/20 transition-all duration-300"
               >
-                <RotateCcw size={12} strokeWidth={1.5} />
-                <span className="text-[10px] tracking-[0.1em]">Watch again</span>
-              </motion.button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleReplay}
+                  className="flex items-center gap-2.5"
+                >
+                  <RotateCcw size={14} strokeWidth={1.5} />
+                  <span>Watch Again</span>
+                </Button>
+              </motion.div>
             </motion.div>
           </motion.div>
         )}

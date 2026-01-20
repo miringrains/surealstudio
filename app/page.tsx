@@ -158,9 +158,9 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                <Button onClick={handleEnterClick} className="flex items-center gap-2">
-                  <span>{hasAccess ? 'Enter' : 'Get access'}</span>
-                  <ArrowRight size={14} />
+                <Button onClick={handleEnterClick} size="lg" className="flex items-center gap-3">
+                  <span>{hasAccess ? 'Enter Theater' : 'Get Access'}</span>
+                  <ArrowRight size={16} />
                 </Button>
               </motion.div>
             </motion.div>
