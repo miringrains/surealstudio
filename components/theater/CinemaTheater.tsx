@@ -211,10 +211,10 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
             transition={{ duration: 0.3 }}
             className="w-full mt-4 flex items-center justify-between"
           >
-            <h1 className="text-sm md:text-base font-normal text-white/80">
+            <h1 className="text-xl md:text-2xl font-normal text-white">
               {premiere.title}
             </h1>
-            <SurealLogo size="sm" animate={false} className="opacity-40" />
+            <SurealLogo size="sm" animate={false} className="opacity-50" />
           </motion.div>
         </motion.div>
       </div>

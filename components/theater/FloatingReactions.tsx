@@ -87,21 +87,21 @@ export function FloatingReactions({ premiereId, enabled = true }: FloatingReacti
               initial={{ 
                 opacity: 1, 
                 y: '100vh', 
-                scale: 0.8,
+                scale: 1,
                 x: `${reaction.x}vw`,
               }}
               animate={{ 
-                opacity: [1, 1, 0.8, 0],
-                y: '-20vh',
-                scale: [0.8, 1.2, 1, 0.8],
+                opacity: [1, 1, 1, 0],
+                y: '-50vh',
+                scale: [1, 1.5, 2, 2.5],
               }}
               transition={{ 
-                duration: 5,
-                ease: [0.16, 1, 0.3, 1],
-                opacity: { times: [0, 0.5, 0.85, 1] },
-                scale: { times: [0, 0.2, 0.6, 1] },
+                duration: 4,
+                ease: 'easeOut',
+                opacity: { times: [0, 0.6, 0.9, 1] },
+                scale: { times: [0, 0.3, 0.7, 1] },
               }}
-              className="absolute text-3xl md:text-4xl"
+              className="absolute text-4xl md:text-5xl"
               style={{ 
                 left: 0,
                 textShadow: '0 4px 20px rgba(0,0,0,0.5)',
