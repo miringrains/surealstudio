@@ -7,7 +7,6 @@ import type MuxPlayerElement from '@mux/mux-player'
 import { RotateCcw } from 'lucide-react'
 import { FloatingReactions } from './FloatingReactions'
 import { SurealLogo } from '@/components/SurealLogo'
-import { Button } from '@/components/ui/Button'
 import type { Premiere } from '@/lib/types'
 
 interface CinemaTheaterProps {
@@ -19,30 +18,24 @@ type VideoState = 'idle' | 'playing' | 'paused' | 'ended'
 
 export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
   const mainPlayerRef = useRef<MuxPlayerElement>(null)
-  const ambientVideoRef = useRef<HTMLVideoElement>(null)
+  const ambientPlayerRef = useRef<MuxPlayerElement>(null)
   
   const [videoState, setVideoState] = useState<VideoState>('idle')
   const [showIntro, setShowIntro] = useState(true)
-  const [showControls, setShowControls] = useState(true)
+  const [showUI, setShowUI] = useState(true)
 
-  // Get the video stream URL for ambient
-  const streamUrl = `https://stream.mux.com/${premiere.mux_playback_id}.m3u8`
-  const thumbnailUrl = `https://image.mux.com/${premiere.mux_playback_id}/thumbnail.jpg`
+  // Thumbnail for static ambient fallback
+  const thumbnailUrl = `https://image.mux.com/${premiere.mux_playback_id}/thumbnail.jpg?time=10&width=1920`
 
-  // Sync ambient video with main player
+  // Sync ambient with main
   const syncAmbient = useCallback((action: 'play' | 'pause', time?: number) => {
-    const ambient = ambientVideoRef.current
+    const ambient = ambientPlayerRef.current
     if (!ambient) return
-    
     try {
-      if (typeof time === 'number') {
+      if (typeof time === 'number' && Math.abs(ambient.currentTime - time) > 1) {
         ambient.currentTime = time
       }
-      if (action === 'play') {
-        ambient.play().catch(() => {})
-      } else {
-        ambient.pause()
-      }
+      action === 'play' ? ambient.play() : ambient.pause()
     } catch {}
   }, [])
 
@@ -50,9 +43,7 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
     setVideoState('playing')
     setShowIntro(false)
     const main = mainPlayerRef.current
-    if (main) {
-      syncAmbient('play', main.currentTime)
-    }
+    if (main) syncAmbient('play', main.currentTime)
   }, [syncAmbient])
 
   const handlePause = useCallback(() => {
@@ -65,37 +56,37 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
     syncAmbient('pause')
   }, [syncAmbient])
 
-  // Time sync
+  // Periodic time sync
   useEffect(() => {
     if (videoState !== 'playing') return
     const interval = setInterval(() => {
       const main = mainPlayerRef.current
-      const ambient = ambientVideoRef.current
-      if (main && ambient && Math.abs(main.currentTime - ambient.currentTime) > 1) {
+      const ambient = ambientPlayerRef.current
+      if (main && ambient && Math.abs(main.currentTime - ambient.currentTime) > 0.5) {
         ambient.currentTime = main.currentTime
       }
-    }, 3000)
+    }, 2000)
     return () => clearInterval(interval)
   }, [videoState])
 
   // Auto-hide UI
   useEffect(() => {
     if (videoState !== 'playing') {
-      setShowControls(true)
+      setShowUI(true)
       return
     }
     let timeout: NodeJS.Timeout
-    const onMove = () => {
-      setShowControls(true)
+    const show = () => {
+      setShowUI(true)
       clearTimeout(timeout)
-      timeout = setTimeout(() => setShowControls(false), 3000)
+      timeout = setTimeout(() => setShowUI(false), 3000)
     }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('touchstart', onMove)
-    timeout = setTimeout(() => setShowControls(false), 3000)
+    window.addEventListener('mousemove', show)
+    window.addEventListener('touchstart', show)
+    timeout = setTimeout(() => setShowUI(false), 3000)
     return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('touchstart', onMove)
+      window.removeEventListener('mousemove', show)
+      window.removeEventListener('touchstart', show)
       clearTimeout(timeout)
     }
   }, [videoState])
@@ -105,15 +96,11 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
     if (main) {
       main.currentTime = 0
       main.play()
-      setVideoState('playing')
     }
   }, [])
 
   const handleStart = useCallback(() => {
-    const main = mainPlayerRef.current
-    if (main) {
-      main.play()
-    }
+    mainPlayerRef.current?.play()
     setShowIntro(false)
   }, [])
 
@@ -122,122 +109,158 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
   const hasEnded = videoState === 'ended'
 
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden">
-      {/* Ambient Glow - using native video for full control */}
-      <motion.div 
-        className="absolute inset-0 pointer-events-none"
-        animate={{ opacity: hasEnded ? 0 : isActive ? 0.7 : 0.4 }}
-        transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
-        style={{
-          filter: 'blur(100px) saturate(1.3)',
-          transform: 'scale(1.5)',
-        }}
+    <div className="fixed inset-0 bg-[#030303] overflow-hidden">
+      
+      {/* ============ AMBIENT GLOW LAYER ============ */}
+      {/* Static thumbnail blur as base layer */}
+      <motion.div
+        className="absolute inset-0 z-0"
+        animate={{ opacity: hasEnded ? 0 : 0.5 }}
+        transition={{ duration: 2 }}
       >
-        <video
-          ref={ambientVideoRef}
-          src={streamUrl}
-          poster={thumbnailUrl}
-          muted
-          playsInline
-          loop
-          crossOrigin="anonymous"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ 
-            position: 'absolute',
-            top: '-25%',
-            left: '-25%',
-            width: '150%',
-            height: '150%',
+        <img
+          src={thumbnailUrl}
+          alt=""
+          className="absolute w-full h-full object-cover"
+          style={{
+            filter: 'blur(80px) saturate(1.4) brightness(0.8)',
+            transform: 'scale(1.3)',
           }}
         />
       </motion.div>
 
-      {/* Vignette */}
-      <motion.div 
-        className="absolute inset-0 pointer-events-none z-10"
-        animate={{
-          background: hasEnded 
-            ? 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.95) 100%)'
-            : showIntro
-            ? 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,0.9) 100%)'
-            : 'radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)'
+      {/* Dynamic video glow layer */}
+      <motion.div
+        className="absolute inset-0 z-[1] pointer-events-none"
+        animate={{ opacity: hasEnded ? 0 : isActive ? 0.6 : 0.3 }}
+        transition={{ duration: 1.5 }}
+        style={{
+          filter: 'blur(100px) saturate(1.5)',
+          transform: 'scale(1.4)',
         }}
-        transition={{ duration: 2 }}
+      >
+        <MuxPlayer
+          ref={ambientPlayerRef}
+          playbackId={premiere.mux_playback_id} 
+          tokens={tokens}
+          muted
+          autoPlay
+          loop
+          preload="auto"
+          style={{
+            position: 'absolute',
+            top: '-20%',
+            left: '-20%',
+            width: '140%',
+            height: '140%',
+            '--controls': 'none',
+            '--media-object-fit': 'cover',
+          } as React.CSSProperties}
+        />
+      </motion.div>
+
+      {/* ============ VIGNETTE ============ */}
+      <div 
+        className="absolute inset-0 z-[2] pointer-events-none"
+        style={{
+          background: hasEnded
+            ? 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.9) 100%)'
+            : 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.7) 100%)'
+        }}
       />
 
-      {/* Main Video */}
-      <div className="relative z-20 flex items-center justify-center min-h-[100dvh] p-4 md:p-8">
+      {/* ============ MAIN VIDEO ============ */}
+      <div className="relative z-[3] flex items-center justify-center min-h-[100dvh] px-4 py-8 md:px-12 md:py-12">
         <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ 
-            scale: hasEnded ? 0.92 : 1, 
-            opacity: hasEnded ? 0.7 : 1 
+            opacity: hasEnded ? 0.6 : 1,
+            scale: hasEnded ? 0.94 : 1,
           }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-5xl"
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-6xl"
         >
-          <MuxPlayer
-            ref={mainPlayerRef}
-            playbackId={premiere.mux_playback_id}
-            tokens={tokens}
-            streamType="on-demand"
-            accentColor="#ffffff"
-            primaryColor="#ffffff"
-            autoPlay
-            metadata={{ video_title: premiere.title }}
-            className="w-full"
-            style={{ 
-              aspectRatio: 'auto',
-              maxHeight: '75dvh',
+          {/* Video container with subtle shadow */}
+          <div 
+            className="relative bg-black"
+            style={{
+              boxShadow: isActive 
+                ? '0 0 0 1px rgba(255,255,255,0.05), 0 30px 60px -20px rgba(0,0,0,0.8)'
+                : '0 0 0 1px rgba(255,255,255,0.03)'
             }}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onEnded={handleEnded}
-          />
+          >
+            <MuxPlayer
+              ref={mainPlayerRef}
+              playbackId={premiere.mux_playback_id}
+              tokens={tokens}
+              streamType="on-demand"
+              accentColor="#ffffff"
+              primaryColor="#ffffff"
+              autoPlay
+              preload="auto"
+              metadata={{ video_title: premiere.title }}
+              style={{
+                width: '100%',
+                '--media-object-fit': 'contain',
+              } as React.CSSProperties}
+              onPlay={handlePlay}
+              onPause={handlePause}
+              onEnded={handleEnded}
+            />
+          </div>
 
-          {/* Title */}
+          {/* Title bar */}
           <motion.div
-            animate={{ 
-              opacity: showControls && !showIntro && !hasEnded ? 1 : 0,
-            }}
-            transition={{ duration: 0.4 }}
-            className="mt-4 flex items-center justify-between"
+            animate={{ opacity: showUI && !showIntro && !hasEnded ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+            className="mt-5 flex items-center justify-between"
           >
             <div>
-              <h1 className="text-lg font-normal text-white/90">{premiere.title}</h1>
+              <h1 className="text-base md:text-lg font-normal text-white/80 tracking-tight">
+                {premiere.title}
+              </h1>
               {premiere.description && (
-                <p className="text-sm text-white/40 mt-1">{premiere.description}</p>
+                <p className="text-sm text-white/30 mt-0.5">{premiere.description}</p>
               )}
             </div>
-            <SurealLogo size="sm" animate={false} className="opacity-40" />
+            <SurealLogo size="sm" animate={false} className="opacity-30" />
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Intro */}
+      {/* ============ INTRO OVERLAY ============ */}
       <AnimatePresence>
         {showIntro && (
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0 z-30 flex items-center justify-center bg-black cursor-pointer"
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             onClick={handleStart}
+            className="absolute inset-0 z-[10] flex items-center justify-center bg-black cursor-pointer"
           >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 1 }}
-              className="flex flex-col items-center gap-8"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.8 }}
+              className="flex flex-col items-center"
             >
               <SurealLogo size="lg" animate={false} />
-              <span className="label">Presents</span>
+              
               <motion.span
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: 0.4 }}
+                transition={{ delay: 0.6 }}
+                className="mt-6 text-[10px] uppercase tracking-[0.2em] text-white/40"
+              >
+                Presents
+              </motion.span>
+
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.25 }}
                 transition={{ delay: 1.5 }}
-                className="text-white/30 text-xs mt-8"
+                className="mt-12 text-[11px] text-white/25"
               >
                 Tap to begin
               </motion.span>
@@ -246,39 +269,48 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
         )}
       </AnimatePresence>
 
-      {/* Outro */}
+      {/* ============ OUTRO OVERLAY ============ */}
       <AnimatePresence>
         {hasEnded && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 2 }}
-            className="absolute inset-0 z-30 flex items-center justify-center"
+            transition={{ duration: 1.5, delay: 0.5 }}
+            className="absolute inset-0 z-[10] flex items-center justify-center"
           >
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.5, delay: 0.5 }}
-              className="flex flex-col items-center gap-6"
+              transition={{ duration: 1, delay: 0.8 }}
+              className="flex flex-col items-center"
             >
-              <SurealLogo size="md" animate={false} className="opacity-60" />
-              <span className="text-white/50 text-sm">{premiere.title}</span>
-              <span className="text-white/20 text-xs">A Sureal Studio Production</span>
+              <SurealLogo size="md" animate={false} className="opacity-50" />
               
-              <Button 
-                variant="underline" 
+              <span className="mt-6 text-sm text-white/40 tracking-tight">
+                {premiere.title}
+              </span>
+              
+              <span className="mt-1 text-[10px] text-white/20 uppercase tracking-[0.15em]">
+                A Sureal Studio Production
+              </span>
+
+              {/* Replay button */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 }}
                 onClick={handleReplay}
-                className="mt-6 flex items-center gap-2"
+                className="mt-10 flex items-center gap-2.5 px-5 py-2.5 text-white/50 hover:text-white/80 border border-white/10 hover:border-white/25 transition-all duration-300"
               >
-                <RotateCcw size={14} />
-                <span>Watch again</span>
-              </Button>
+                <RotateCcw size={13} strokeWidth={1.5} />
+                <span className="text-[11px] tracking-wide">Watch again</span>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Reactions */}
+      {/* ============ REACTIONS ============ */}
       <FloatingReactions premiereId={premiere.id} enabled={videoState === 'playing'} />
     </div>
   )
