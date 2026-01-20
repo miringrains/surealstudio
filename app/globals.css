@@ -1,0 +1,294 @@
+@import "tailwindcss";
+
+@theme {
+  /* Space-age color palette */
+  --color-void: #000000;
+  --color-void-elevated: #0a0a0a;
+  --color-void-border: #1a1a1a;
+  --color-white: #ffffff;
+  --color-white-muted: #888888;
+  --color-white-dim: #444444;
+  
+  /* Fonts */
+  --font-display: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Monaco', monospace;
+  
+  /* Animations */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-display);
+  background: var(--color-void);
+  color: var(--color-white);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-white);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-void-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-white-dim);
+}
+
+/* Typography utilities */
+.text-display {
+  font-family: var(--font-display);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.text-label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-white-muted);
+}
+
+/* Countdown digit styling */
+.countdown-digit {
+  font-family: var(--font-mono);
+  font-size: clamp(3rem, 12vw, 8rem);
+  font-weight: 200;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-separator {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 8vw, 5rem);
+  font-weight: 100;
+  opacity: 0.3;
+  line-height: 1;
+}
+
+/* Ambient glow effect */
+.ambient-glow {
+  filter: blur(100px) saturate(1.5);
+  transform: scale(1.25);
+  opacity: 0.45;
+}
+
+/* Vignette overlay */
+.vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.4) 80%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+}
+
+/* Scan lines effect (subtle) */
+.scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Noise texture overlay */
+.noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* Glass effect for modals/cards */
+.glass {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-void-border);
+}
+
+/* Pulse animation for logo */
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+  }
+}
+
+.logo-pulse {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+/* Floating reaction animation */
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100vh) scale(0.5);
+  }
+}
+
+.reaction-float {
+  animation: float-up 4s ease-out forwards;
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s var(--ease-out-expo) forwards;
+}
+
+/* Scale in animation */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.8s var(--ease-out-expo) forwards;
+}
+
+/* Stagger delay utilities */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Input styling */
+input[type="email"],
+input[type="text"] {
+  background: transparent;
+  border: 1px solid var(--color-void-border);
+  color: var(--color-white);
+  padding: 1rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="email"]:focus,
+input[type="text"]:focus {
+  border-color: var(--color-white-dim);
+  box-shadow: 0 0 0 1px var(--color-white-dim);
+}
+
+input[type="email"]::placeholder,
+input[type="text"]::placeholder {
+  color: var(--color-white-dim);
+}
+
+/* Button base */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-white);
+  background: transparent;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out-expo);
+}
+
+.btn:hover {
+  background: var(--color-white);
+  color: var(--color-void);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  background: transparent;
+  color: var(--color-white);
+}
+
+/* Mux Player customization */
+mux-player {
+  --media-object-fit: contain;
+  --media-object-position: center;
+  --controls: none;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+mux-player::part(top) {
+  background: transparent;
+}
+
+mux-player::part(center) {
+  background: transparent;
+}
+
+mux-player::part(bottom) {
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
