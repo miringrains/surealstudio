@@ -227,7 +227,14 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0 z-30 flex items-center justify-center bg-black"
+            className="absolute inset-0 z-30 flex items-center justify-center bg-black cursor-pointer"
+            onClick={() => {
+              const mainPlayer = mainPlayerRef.current
+              if (mainPlayer) {
+                mainPlayer.play()
+              }
+              setShowIntro(false)
+            }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -244,6 +251,14 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
                 className="text-label tracking-[0.3em]"
               >
                 PRESENTS
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                transition={{ delay: 1.2, duration: 0.8 }}
+                className="text-white/40 text-xs tracking-widest uppercase mt-8"
+              >
+                Click anywhere to begin
               </motion.span>
             </motion.div>
           </motion.div>
