@@ -27,8 +27,8 @@ export function MetallicButton({
       whileTap={{ scale: 0.97 }}
       className={`
         relative overflow-hidden rounded-2xl
-        px-10 py-4
-        text-base font-semibold tracking-tight text-white
+        px-12 py-5
+        text-lg font-semibold tracking-tight text-white
         disabled:opacity-40 disabled:cursor-not-allowed
         cursor-pointer
         ${className}

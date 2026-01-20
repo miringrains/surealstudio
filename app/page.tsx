@@ -116,7 +116,7 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="label"
+                  className="text-xs uppercase tracking-[0.2em] text-white/60"
                 >
                   Next Premiere
                 </motion.span>
@@ -124,7 +124,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-2xl md:text-3xl font-normal text-white/90"
+                  className="text-3xl md:text-4xl font-normal text-white"
                 >
                   {premiere.title}
                 </motion.h1>
@@ -133,7 +133,7 @@ export default function Home() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="text-white/40 text-sm"
+                    className="text-white/70 text-base"
                   >
                     {premiere.description}
                   </motion.p>
@@ -172,8 +172,8 @@ export default function Home() {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center gap-3 text-center"
             >
-              <h2 className="text-xl font-normal text-white/90">No upcoming premieres</h2>
-              <p className="text-white/40 text-sm">Check back soon</p>
+              <h2 className="text-2xl font-normal text-white">No upcoming premieres</h2>
+              <p className="text-white/60 text-base">Check back soon</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -184,7 +184,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-6 text-white/20 text-xs"
+        className="absolute bottom-6 text-white/50 text-sm"
       >
         Sureal Studio © {new Date().getFullYear()}
       </motion.footer>

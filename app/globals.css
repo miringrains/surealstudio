@@ -38,11 +38,11 @@ body {
 /* Label style */
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: var(--color-white-40);
+  color: var(--color-white-60);
 }
 
 /* Glass effect */

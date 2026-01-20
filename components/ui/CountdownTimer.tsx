@@ -46,7 +46,7 @@ export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) 
       <motion.span 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-[10px] uppercase tracking-[0.2em] text-white/40"
+        className="text-sm uppercase tracking-[0.2em] text-white/70"
       >
         Live now
       </motion.span>
@@ -61,7 +61,7 @@ export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) 
   ].filter(u => u.show)
 
   return (
-    <div className="flex items-center gap-6 md:gap-8">
+    <div className="flex items-center gap-8 md:gap-12">
       {units.map((unit, i) => (
         <motion.div 
           key={unit.label}
@@ -70,10 +70,10 @@ export function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) 
           transition={{ delay: 0.5 + i * 0.1 }}
           className="flex flex-col items-center"
         >
-          <div className="text-3xl md:text-5xl font-light text-white/90 tracking-tight">
+          <div className="text-4xl md:text-6xl font-light text-white tracking-tight">
             <FlipCounter value={unit.value} />
           </div>
-          <span className="mt-2 text-[9px] uppercase tracking-[0.15em] text-white/30">
+          <span className="mt-3 text-xs uppercase tracking-[0.15em] text-white/60">
             {unit.label}
           </span>
         </motion.div>

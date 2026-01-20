@@ -210,17 +210,17 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
           <motion.div
             animate={{ opacity: showUI && !showIntro && !hasEnded ? 1 : 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full mt-4 flex items-center justify-between px-1"
+            className="w-full mt-5 flex items-center justify-between px-1"
           >
             <div>
-              <h1 className="text-sm md:text-base font-normal text-white/70">
+              <h1 className="text-base md:text-lg font-normal text-white">
                 {premiere.title}
               </h1>
               {premiere.description && (
-                <p className="text-xs text-white/30 mt-0.5">{premiere.description}</p>
+                <p className="text-sm text-white/60 mt-1">{premiere.description}</p>
               )}
             </div>
-            <SurealLogo size="sm" animate={false} className="opacity-25" />
+            <SurealLogo size="sm" animate={false} className="opacity-50" />
           </motion.div>
         </motion.div>
       </div>
@@ -244,10 +244,10 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
             >
               <SurealLogo size="lg" animate={false} />
               
-              <div className="mt-6">
+              <div className="mt-8">
                 <ShinyText 
                   delay={0.6}
-                  className="text-[10px] uppercase tracking-[0.25em] text-white/35"
+                  className="text-sm uppercase tracking-[0.3em] text-white/60"
                 >
                   Presents
                 </ShinyText>
@@ -255,9 +255,9 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
 
               <motion.span
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.2 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 2 }}
-                className="mt-16 text-[11px] text-white/20"
+                className="mt-16 text-sm text-white/50"
               >
                 Tap to begin
               </motion.span>
@@ -281,13 +281,13 @@ export function CinemaTheater({ premiere, playbackToken }: CinemaTheaterProps) {
               transition={{ duration: 1, delay: 0.8 }}
               className="flex flex-col items-center"
             >
-              <SurealLogo size="md" animate={false} className="opacity-40" />
+              <SurealLogo size="md" animate={false} className="opacity-70" />
               
-              <span className="mt-6 text-sm text-white/35">
+              <span className="mt-6 text-lg text-white/80">
                 {premiere.title}
               </span>
               
-              <span className="mt-1.5 text-[9px] text-white/15 uppercase tracking-[0.2em]">
+              <span className="mt-2 text-xs text-white/50 uppercase tracking-[0.2em]">
                 A Sureal Studio Production
               </span>
 
